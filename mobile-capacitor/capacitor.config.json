@@ -1,0 +1,12 @@
+{
+  "appId": "com.kageneko.dash",
+  "appName": "Kage-Neko Dash",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#070913",
+    "allowMixedContent": false
+  }
+}

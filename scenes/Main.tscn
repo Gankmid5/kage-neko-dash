@@ -1,0 +1,219 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/Player.gd" id="2_player"]
+
+[sub_resource type="Environment" id="Environment_glow"]
+background_mode = 3
+glow_enabled = true
+glow_levels/1 = 1.0
+glow_levels/2 = 0.8
+glow_levels/3 = 0.5
+glow_intensity = 0.75
+glow_strength = 0.95
+glow_bloom = 0.22
+glow_blend_mode = 0
+glow_hdr_threshold = 0.95
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_glow")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(400, 380)
+
+[node name="SolidsContainer" type="Node2D" parent="."]
+
+[node name="SpikesContainer" type="Node2D" parent="."]
+
+[node name="EnemiesContainer" type="Node2D" parent="."]
+
+[node name="BulletsContainer" type="Node2D" parent="."]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(140, 540)
+script = ExtResource("2_player")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="HBoxContainer" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = -18.0
+offset_bottom = 54.0
+grow_horizontal = 2
+theme_override_constants/separation = 16
+
+[node name="LeftInfo" type="HBoxContainer" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="StageLabel" type="Label" parent="HUD/TopBar/LeftInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Stage 1: Neon Alley"
+
+[node name="AttemptLabel" type="Label" parent="HUD/TopBar/LeftInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.75, 0.14, 1)
+theme_override_font_sizes/font_size = 16
+text = "Attempt #1"
+
+[node name="ProgressBox" type="HBoxContainer" parent="HUD/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="HUD/TopBar/ProgressBox"]
+custom_minimum_size = Vector2(300, 20)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 100.0
+show_percentage = false
+
+[node name="ProgressLabel" type="Label" parent="HUD/TopBar/ProgressBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "0%"
+
+[node name="RightInfo" type="HBoxContainer" parent="HUD/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SlashLabel" type="Label" parent="HUD/TopBar/RightInfo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
+theme_override_font_sizes/font_size = 16
+text = "Slashed: 0"
+
+[node name="MenuBtn" type="Button" parent="HUD/TopBar/RightInfo"]
+layout_mode = 2
+text = "How to Play"
+
+[node name="MuteBtn" type="Button" parent="HUD/TopBar/RightInfo"]
+layout_mode = 2
+text = "Sound: ON"
+
+[node name="MenuOverlay" type="ColorRect" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.04, 0.09, 0.82)
+
+[node name="Panel" type="PanelContainer" parent="HUD/MenuOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -205.0
+offset_right = 340.0
+offset_bottom = 205.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/MenuOverlay/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/MenuOverlay/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.98, 1, 1)
+theme_override_font_sizes/font_size = 38
+text = "KAGE-NEKO DASH"
+horizontal_alignment = 1
+
+[node name="ControlsLabel" type="Label" parent="HUD/MenuOverlay/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 0.85, 0.96, 1)
+theme_override_font_sizes/font_size = 15
+text = "HOW TO PLAY
+
+[ Space / W / Up ]   Jump & Double Jump  •  Trigger Cyan Orbs mid-air
+[ S / Down ]   Fast-Fall through rooftops & into tunnels
+[ J / K / Shift / Right-Click ]   Katana Slash  •  Cut gunners & deflect bullets
+[ R ]   Quick Restart
+
+Reach the Crimson Torii Gate at the end of each run."
+horizontal_alignment = 1
+
+[node name="StageButtons" type="GridContainer" parent="HUD/MenuOverlay/Panel/VBox"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 10
+columns = 3
+
+[node name="PlayBtn" type="Button" parent="HUD/MenuOverlay/Panel/VBox"]
+custom_minimum_size = Vector2(240, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 18
+text = "PLAY"
+
+[node name="ClearOverlay" type="ColorRect" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03, 0.04, 0.09, 0.82)
+
+[node name="Panel" type="PanelContainer" parent="HUD/ClearOverlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -130.0
+offset_right = 240.0
+offset_bottom = 130.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="HUD/ClearOverlay/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="ClearTitle" type="Label" parent="HUD/ClearOverlay/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.75, 0.14, 1)
+theme_override_font_sizes/font_size = 30
+text = "Neon Alley Cleared!"
+horizontal_alignment = 1
+
+[node name="ClearStats" type="Label" parent="HUD/ClearOverlay/Panel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Attempts: 1   •   Enemies Slashed: 5"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="HUD/ClearOverlay/Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="ReplayBtn" type="Button" parent="HUD/ClearOverlay/Panel/VBox/Buttons"]
+custom_minimum_size = Vector2(140, 42)
+layout_mode = 2
+text = "Replay"
+
+[node name="NextBtn" type="Button" parent="HUD/ClearOverlay/Panel/VBox/Buttons"]
+custom_minimum_size = Vector2(160, 42)
+layout_mode = 2
+text = "Next Stage →"

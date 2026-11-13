@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Kage-Neko Dash</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #050814;
+      color: #f8fafc;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      touch-action: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #shell {
+      position: relative;
+      width: 100vw; height: 100vh;
+      max-width: 177.78vh; max-height: 56.25vw;
+      background: #080d24;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8);
+    }
+    canvas { width: 100%; height: 100%; display: block; }
+    .hud {
+      position: absolute; top: 14px; left: 18px; right: 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      pointer-events: none; z-index: 5;
+    }
+    .hud-group { display: flex; align-items: center; gap: 12px; pointer-events: auto; }
+    .stage-name { font-size: 15px; font-weight: 700; color: #f8fafc; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+    .attempt { font-size: 15px; font-weight: 700; color: #facc15; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+    .slash-count { font-size: 15px; font-weight: 700; color: #38bdf8; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+    .progress-wrap {
+      display: flex; align-items: center; gap: 10px;
+      flex: 1; max-width: 380px; justify-content: center;
+    }
+    .progress-track {
+      flex: 1; height: 14px; border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      overflow: hidden;
+    }
+    .progress-fill {
+      width: 0%; height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #f43f5e);
+      transition: width 0.05s linear;
+    }
+    .progress-pct { font-size: 14px; font-weight: 700; min-width: 40px; text-shadow: 0 2px 6px rgba(0,0,0,0.8); }
+    .hud-btn {
+      background: rgba(15, 23, 42, 0.85); color: #f8fafc;
+      border: 1px solid rgba(148, 163, 184, 0.32); border-radius: 8px;
+      padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+      touch-action: manipulation;
+    }
+    .hud-btn:hover { border-color: #38bdf8; background: rgba(30, 41, 59, 0.95); }
+    .overlay {
+      position: absolute; inset: 0;
+      background: rgba(5, 8, 20, 0.82);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 20;
+    }
+    .overlay.hidden { display: none; }
+    .card {
+      background: rgba(12, 18, 36, 0.95);
+      border: 2px solid rgba(56, 189, 248, 0.55);
+      border-radius: 16px;
+      padding: 28px 36px;
+      max-width: 660px; width: 92%;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+    }
+    h1 {
+      font-size: 38px; font-weight: 900; letter-spacing: 0.06em;
+      margin-bottom: 14px; color: #f8fafc;
+    }
+    h2 { font-size: 30px; font-weight: 800; color: #facc15; margin-bottom: 14px; }
+    .howto {
+      color: #cbd5e1; font-size: 15px; line-height: 1.75;
+      margin-bottom: 22px; white-space: pre-line;
+    }
+    kbd {
+      background: #1e293b; border: 1px solid #475569; border-bottom-width: 2px;
+      border-radius: 5px; padding: 2px 7px; font-size: 12px; font-weight: 700;
+      color: #f8fafc; font-family: inherit;
+    }
+    .btn-row { display: flex; gap: 14px; justify-content: center; }
+    .primary-btn {
+      background: linear-gradient(135deg, #ef4444, #f43f5e);
+      color: #fff; border: none; border-radius: 10px;
+      padding: 13px 44px; font-size: 18px; font-weight: 800;
+      letter-spacing: 0.06em; cursor: pointer;
+      touch-action: manipulation;
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    }
+    .primary-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .secondary-btn {
+      background: #1e293b; color: #f8fafc;
+      border: 1px solid #475569; border-radius: 10px;
+      padding: 12px 24px; font-size: 15px; font-weight: 700; cursor: pointer;
+      touch-action: manipulation;
+    }
+    .secondary-btn:hover { border-color: #38bdf8; }
+    .touch-controls {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 12;
+      display: none;
+    }
+    body.is-touch .touch-controls { display: block; }
+    @media (pointer: coarse) { .touch-controls { display: block; } }
+    .touch-left {
+      position: absolute; left: 18px; bottom: 18px;
+      display: flex; gap: 12px; pointer-events: auto;
+    }
+    .touch-right {
+      position: absolute; right: 18px; bottom: 18px;
+      pointer-events: auto;
+    }
+    .touch-btn {
+      width: 78px; height: 78px; border-radius: 50%;
+      background: rgba(15, 23, 42, 0.58);
+      border: 2px solid rgba(148, 163, 184, 0.45);
+      color: #f8fafc; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.05em; touch-action: none;
+      backdrop-filter: blur(4px);
+    }
+    .touch-btn:active, .touch-btn.pressed {
+      transform: scale(0.94);
+      background: rgba(56, 189, 248, 0.35);
+      border-color: #38bdf8;
+    }
+    .touch-btn.jump-btn {
+      width: 92px; height: 92px;
+      border-color: rgba(239, 68, 68, 0.7);
+      background: rgba(239, 68, 68, 0.24);
+    }
+    .touch-btn.slash-btn {
+      border-color: rgba(56, 189, 248, 0.7);
+      background: rgba(56, 189, 248, 0.22);
+    }
+    @media (max-width: 720px) {
+      .hud { top: 8px; left: 10px; right: 10px; gap: 8px; }
+      .stage-name, .attempt, .slash-count, .progress-pct { font-size: 12px; }
+      .hud-btn { padding: 4px 8px; font-size: 11px; }
+      .card { padding: 18px 20px; }
+      h1 { font-size: 26px; margin-bottom: 8px; }
+      h2 { font-size: 22px; }
+      .howto { font-size: 13px; line-height: 1.55; margin-bottom: 14px; }
+      .primary-btn { padding: 10px 30px; font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="shell">
+    <canvas id="game" width="1280" height="720"></canvas>
+
+    <div class="hud">
+      <div class="hud-group">
+        <span id="stage-label" class="stage-name">Stage 1: Neon Alley</span>
+        <span id="attempt-label" class="attempt">Attempt #1</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
+        <span id="progress-label" class="progress-pct">0%</span>
+      </div>
+      <div class="hud-group">
+        <span id="slash-label" class="slash-count">Slashed: 0</span>
+        <button id="menu-btn" class="hud-btn">How to Play</button>
+        <button id="mute-btn" class="hud-btn">Sound: ON</button>
+      </div>
+    </div>
+
+    <div id="menu-overlay" class="overlay">
+      <div class="card">
+        <h1>KAGE-NEKO DASH</h1>
+        <div class="howto">
+          <strong>HOW TO PLAY</strong><br/>
+          <kbd>Space</kbd> / <kbd>W</kbd> / <kbd>↑</kbd> / <kbd>Click</kbd> — Jump, Double Jump &amp; Cyan Orbs<br/>
+          <kbd>S</kbd> / <kbd>↓</kbd> — Fast-Fall through rooftops &amp; into tunnels<br/>
+          <kbd>J</kbd> / <kbd>K</kbd> / <kbd>Shift</kbd> / <kbd>Right-Click</kbd> — Katana Slash (Cuts gunners &amp; deflects bullets)<br/>
+          <kbd>R</kbd> — Quick Restart &nbsp;•&nbsp; Reach the Crimson Torii Gate!
+        </div>
+        <button id="play-btn" class="primary-btn">PLAY</button>
+      </div>
+    </div>
+
+    <div id="clear-overlay" class="overlay hidden">
+      <div class="card">
+        <h2 id="clear-title">Neon Alley Cleared!</h2>
+        <div id="clear-stats" class="howto">Attempts: 1   •   Enemies Slashed: 0</div>
+        <div class="btn-row">
+          <button id="replay-btn" class="secondary-btn">Replay</button>
+          <button id="next-btn" class="primary-btn">Next Stage →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="touch-controls">
+      <div class="touch-left">
+        <button id="btn-drop" class="touch-btn">DROP</button>
+        <button id="btn-slash" class="touch-btn slash-btn">SLASH</button>
+      </div>
+      <div class="touch-right">
+        <button id="btn-jump" class="touch-btn jump-btn">JUMP</button>
+      </div>
+    </div>
+  </div>
+  <script src="levels.js"></script>
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

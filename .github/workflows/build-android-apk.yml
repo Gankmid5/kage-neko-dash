@@ -1,0 +1,49 @@
+name: Build Android APK & AAB
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install Capacitor dependencies & sync web assets
+        working-directory: mobile-capacitor
+        run: |
+          npm install
+          npx cap sync android
+
+      - name: Build Debug APK, Release APK & Release AAB
+        working-directory: mobile-capacitor/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug assembleRelease bundleRelease
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kage-neko-dash-apk
+          path: mobile-capacitor/android/app/build/outputs/apk/**/*.apk
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kage-neko-dash-aab
+          path: mobile-capacitor/android/app/build/outputs/bundle/release/*.aab
