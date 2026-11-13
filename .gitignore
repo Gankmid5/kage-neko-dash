@@ -1,3 +1,6 @@
 .godot/
 *.import
 kage_neko_dash_itch_web.zip
+*.keystore
+*.jks
+android-release/
